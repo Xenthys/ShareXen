@@ -1,0 +1,12 @@
+﻿{
+  "Name": "ShareXen",
+  "DestinationType": "ImageUploader",
+  "RequestURL": "https://your.domain/script.php",
+  "FileFormName": "image",
+  "Arguments": {
+    "endpoint": "upload",
+    "auth_token": "change-me"
+  },
+  "URL": "$json:url$",
+  "DeletionURL": "$json:deletion_url$"
+}
