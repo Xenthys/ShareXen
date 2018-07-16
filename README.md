@@ -93,6 +93,7 @@ The `info` endpoint implements several JSON fields, which can be returned depend
 | `url`                | No    | Specified   | String           | (File must exist) URL to the file                                    |
 | `deletion_hash`      | Yes   | Specified   | String           | (File must exist) Deletion hash of the file                          |
 | `deletion_url`       | Yes   | Specified   | String           | (File must exist) Deletion URL of the file                           |
+| `endpoints`          | No    | Unspecified | Array of Strings | List of supported API endpoints                                      |
 | `keyspace`           | No    | Unspecified | String           | Keyspace used by the API (configuration)                             |
 | `name_length`        | No    | Unspecified | Integer          | Size of random names (configuration)                                 |
 | `allowed_extensions` | No    | Unspecified | Array of Strings | List of allowed file extensions (configuration)                      |

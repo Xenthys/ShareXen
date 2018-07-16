@@ -661,6 +661,9 @@ function info_endpoint(&$data)
 	}
 	else
 	{
+		global $keys;
+		$data['endpoints'] = $keys;
+
 		$data['keyspace'] = KEYSPACE;
 		$data['name_length'] = NAME_LENGTH;
 		$data['allowed_extensions'] = EXTS;
