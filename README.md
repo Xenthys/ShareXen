@@ -56,7 +56,7 @@ The following endpoints are supported:
 | -------- | --------------------------------------------------------------------------------------- |
 | `upload` | `auth_token` (user), `image` (file), `filename`                                         |
 | `delete` | `auth_token` (admin) or `deletion_hash`, `filename`                                     |
-| `rename` | `auth_token` (admin) or `auth_token` (user) and `deletion_hash`, `filename`, `new_name` |
+| `rename` | `auth_token` (admin) or `auth_token` (user) and `deletion_hash`, `filename`, `new_name` |
 | `info`   | `auth_token` (user), `filename`                                                         |
 
 Using the `filename` parameter for the `upload` endpoint and accessing the `rename` parameter can be restricted by the configuration. Refer to the available options for more information.
@@ -81,9 +81,9 @@ The following JSON fields can be returned:
 | `error`          | any                 | String  | Static error code, only sent if anything fails        |
 | `debug`          | any                 | String  | Human-readable information, only for some errors      |
 
-The `info` endpoint implements several JSON fields, which can be returned depending on your access level, whether you specify a filename, and whether it exists:
+The `info` endpoint implements several JSON fields, which can be returned or not depending on your access level, whether you specify a filename, and whether it exists. Here is the full specification:
 
-| Name                 | Admin | Filename    | Type             | Details                                                              |
+| Name                 | Admin | Filename    | Type             | Description                                                          |
 | -------------------- | ----- | ----------- | ---------------- | -------------------------------------------------------------------- |
 | `is_admin`           | No    | Irrelevant  | Boolean          | Admin status of the caller                                           |
 | `file_exists`        | No    | Specified   | Boolean          | Whether the specified file exists or not                             |
