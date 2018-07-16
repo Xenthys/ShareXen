@@ -24,7 +24,7 @@ define('USER_TOKENS', [
 ]);
 
 // Allowed image extensions
-define('EXTS', ['png', 'jpg', 'gif', 'webm', 'mp4', 'avi']);
+define('EXTS', ['png', 'jpg', 'jpeg', 'gif', 'webm', 'mp4']);
 
 // Deletion salt - NEVER SHARE THIS
 // Used to generate and compute deletion hashes
