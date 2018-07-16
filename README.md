@@ -27,10 +27,14 @@ Files will be uploaded next to the script, in the same folder.
 
 ## Using the API with ShareX
 
-1. Download the `ShareXen.sxcu` file from this repository, or copy its content.
-2. Open ShareX, click on `Destinations` then `Destination settings…`.
-3. Scroll to the bottom of the list and click on `Custom uploaders`.
-4. Click the `Import` dropdown menu, and import the uploader file.
+Download the `ShareXen.sxcu` file from this repository and double-click it.  
+If you can't open it for whatever reason, follow that procedure:
+
+1. Open ShareX, click on `Destinations` then `Destination settings…`.
+2. Scroll to the bottom of the list and click on `Custom uploaders`.
+3. Click the `Import` dropdown menu, and import the uploader file.
+
+You will need to edit the `Request URL` field to match your own domain name and script path, along with the `auth_token` argument value that must contain a valid user token previously defined within the API itself.
 
 ## Parameters and results
 
