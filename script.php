@@ -100,8 +100,9 @@ define('ADMIN_IGNORE_KEYSPACE', false);
 
 
 define('VERSION', 0.6);
+define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
-$data = ['api_version' => VERSION];
+$data = ['api_version' => VERSION, 'api_source' => SOURCE];
 
 if (version_compare(PHP_VERSION, '7.0.0', '<'))
 {
