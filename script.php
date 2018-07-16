@@ -141,14 +141,26 @@ function get_parameter($field)
 $endpoint = get_parameter('endpoint');
 $data['endpoint'] = strval($endpoint) ?: 'unknown';
 
-function check_auth($token)
+function check_auth()
 {
-	if (!isset($token) || $token === 'change-me')
+	$token = NULL;
+
+	if (isset($_POST['auth_token']))
+	{
+		$token = $_POST['auth_token'];
+	}
+	else
+	{
+		return 0;
+	}
+
+	if ($token === 'change-me')
 	{
 		return 0;
 	}
 
 	$uid = array_search($token, USER_TOKENS);
+
 	if ($uid === false)
 	{
 		error_die($data, 403, 'invalid_credentials');
@@ -156,7 +168,7 @@ function check_auth($token)
 
 	return ($uid + 1);
 }
-$data['user_id'] = check_auth($_POST['auth_token']);
+$data['user_id'] = check_auth();
 
 function send_to_discord($msg)
 {
@@ -385,7 +397,7 @@ function random_str($length = NAME_LENGTH, $keyspace = KEYSPACE)
 	return implode('', $pieces);
 }
 
-function generate_all_urls(&$data)
+function generate_all_urls(&$data, $deletion = true)
 {
 	$https = $_SERVER['HTTPS'];
 	$address = $_SERVER['SERVER_NAME'];
@@ -397,7 +409,13 @@ function generate_all_urls(&$data)
 
 	$data['url'] = $address.$sub.$name;
 
+	if (!$deletion)
+	{
+		return;
+	}
+
 	$hash = get_deletion_hash($name);
+
 	if ($hash)
 	{
 		$data['deletion_hash'] = $hash;
