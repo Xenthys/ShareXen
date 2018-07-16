@@ -57,6 +57,7 @@ The following endpoints are supported:
 | `upload` | `auth_token` (user), `image` (file), `filename`                 |
 | `delete` | `auth_token` (admin) or `deletion_hash`, `filename`             |
 | `rename` | `auth_token` (admin) or `deletion_hash`, `filename`, `new_name` |
+| `info`   | `auth_token` (user), `filename`                                 |
 
 Using the `filename` parameter for the `upload` endpoint and accessing the `rename` parameter can be restricted by the configuration. Refer to the available options for more information.
 
@@ -79,6 +80,25 @@ The following JSON fields can be returned:
 | `old_name`       | `rename`            | String  | Previous name of the file                             |
 | `error`          | any                 | String  | Static error code, only sent if anything fails        |
 | `debug`          | any                 | String  | Human-readable information, only for some errors      |
+
+The `info` endpoint implements several JSON fields, which can be returned depending on your access level, whether you specify a filename, and whether it exists:
+
+| Name                 | Admin | Filename    | Type             | Details                                                              |
+| -------------------- | ----- | ----------- | ---------------- | -------------------------------------------------------------------- |
+| `is_admin`           | No    | Irrelevant  | Boolean          | Admin status of the caller                                           |
+| `file_exists`        | No    | Specified   | Boolean          | Whether the specified file exists or not                             |
+| `filename`           | No    | Specified   | String           | (File must exist) Name of the file                                   |
+| `filesize`           | No    | Specified   | Integer          | (File must exist) Size of the file in bytes                          |
+| `uploaded_at`        | No    | Specified   | Integer          | (File must exist) File upload timestamp                              |
+| `url`                | No    | Specified   | String           | (File must exist) URL to the file                                    |
+| `deletion_hash`      | Yes   | Specified   | String           | (File must exist) Deletion hash of the file                          |
+| `deletion_url`       | Yes   | Specified   | String           | (File must exist) Deletion URL of the file                           |
+| `keyspace`           | No    | Unspecified | String           | Keyspace used by the API (configuration)                             |
+| `name_length`        | No    | Unspecified | Integer          | Size of random names (configuration)                                 |
+| `allowed_extensions` | No    | Unspecified | Array of Strings | List of allowed file extensions (configuration)                      |
+| `custom_names`       | No    | Unspecified | Boolean          | Whether custom filenames are globally allowed or not (configuration) |
+| `files_count`        | No    | Unspecified | Integer          | Amount of files (matching allowed extensions) in the current folder  |
+| `files`              | Yes   | Unspecified | Array of Strings | List of files (matching allowed extensions) in the current folder    |
 
 ## Limitations and security
 

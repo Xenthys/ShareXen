@@ -99,7 +99,7 @@ define('ADMIN_IGNORE_KEYSPACE', false);
 \*****************************/
 
 
-define('VERSION', 0.6);
+define('VERSION', 0.7);
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = ['api_version' => VERSION, 'api_source' => SOURCE];
@@ -258,6 +258,10 @@ function log_request($data)
 
 			case 'rename':
 				$discord_header = "\u{1F4DD}";
+				break;
+
+			case 'info':
+				$discord_header = "\u{2139}";
 				break;
 		}
 	}
@@ -640,6 +644,52 @@ function rename_image(&$data)
 }
 
 $endpoints[] = 'rename';
+
+function info_image(&$data)
+{
+	enforce_auth($data);
+
+	$admin = user_is_admin($data);
+	$data['is_admin'] = $admin;
+
+	$name = get_custom_filename($data, false);
+
+	if ($name)
+	{
+		$exists = file_exists($name);
+		$data['file_exists'] = $exists;
+
+		if ($exists)
+		{
+			$data['filename'] = $name;
+			$data['filesize'] = filesize($name);
+			$data['uploaded_at'] = filemtime($name);
+
+			generate_all_urls($data, $admin);
+		}
+	}
+	else
+	{
+		$data['keyspace'] = KEYSPACE;
+		$data['name_length'] = NAME_LENGTH;
+		$data['allowed_extensions'] = EXTS;
+
+		$custom = defined('ALLOW_CUSTOM_NAMES');
+		$custom = $custom && ALLOW_CUSTOM_NAMES;
+		$data['custom_names'] = $custom;
+
+		$pattern = '*.{'.implode(',', EXTS).'}';
+		$files = glob($pattern, GLOB_BRACE) ?: [];
+		$data['files_count'] = count($files);
+
+		if ($admin)
+		{
+			$data['files'] = $files;
+		}
+	}
+}
+
+$endpoints[] = 'info';
 
 if (!in_array($endpoint, $endpoints))
 {
