@@ -102,7 +102,10 @@ define('ADMIN_IGNORE_KEYSPACE', false);
 define('VERSION', 0.7);
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
-$data = ['api_version' => VERSION, 'api_source' => SOURCE];
+$data = [
+	'api_version' => VERSION,
+	'api_source' => SOURCE
+];
 
 if (version_compare(PHP_VERSION, '7.0.0', '<'))
 {
@@ -120,6 +123,15 @@ if (version_compare(PHP_VERSION, '7.0.0', '<'))
 
 	die(json_encode($data));
 }
+
+$endpoints = [
+	'upload' => "\u{1F517}",
+	'delete' => "\u{1F5D1}",
+	'rename' => "\u{1F4DD}",
+	'info' => "\u{2139}"
+];
+
+$keys = array_keys($endpoints);
 
 function get_parameter($field)
 {
@@ -213,9 +225,9 @@ function send_to_discord($msg)
 
 function log_request($data)
 {
+	global $endpoints;
 	$uid = $data['user_id'];
-
-	$msg = '';
+	$msg = NULL;
 
 	if ($uid)
 	{
@@ -234,6 +246,11 @@ function log_request($data)
 	$discord_logging = true;
 	$discord_header = "\u{2705}";
 
+	if (isset($endpoints[$endpoint]))
+	{
+		$discord_header = $endpoints[$endpoint] ?: $discord_header;
+	}
+
 	if ($status !== 'success')
 	{
 		if (defined('DISCORD_LOG_ERRORS') && DISCORD_LOG_ERRORS)
@@ -243,26 +260,6 @@ function log_request($data)
 		else
 		{
 			$discord_logging = false;
-		}
-	}
-	else
-	{
-		switch ($endpoint) {
-			case 'upload':
-				$discord_header = "\u{1F517}";
-				break;
-			
-			case 'delete':
-				$discord_header = "\u{1F5D1}";
-				break;
-
-			case 'rename':
-				$discord_header = "\u{1F4DD}";
-				break;
-
-			case 'info':
-				$discord_header = "\u{2139}";
-				break;
 		}
 	}
 
@@ -539,7 +536,7 @@ function ensure_file_access(&$data, $name, $restricted = true)
 	}
 }
 
-function upload_image(&$data)
+function upload_endpoint(&$data)
 {
 	enforce_auth($data);
 
@@ -594,9 +591,7 @@ function upload_image(&$data)
 	generate_all_urls($data);
 }
 
-$endpoints[] = 'upload';
-
-function delete_image(&$data)
+function delete_endpoint(&$data)
 {
 	$name = get_custom_filename($data, false);
 
@@ -609,9 +604,7 @@ function delete_image(&$data)
 	}
 }
 
-$endpoints[] = 'delete';
-
-function rename_image(&$data)
+function rename_endpoint(&$data)
 {
 	enforce_auth($data);
 
@@ -643,9 +636,7 @@ function rename_image(&$data)
 	generate_all_urls($data);
 }
 
-$endpoints[] = 'rename';
-
-function info_image(&$data)
+function info_endpoint(&$data)
 {
 	enforce_auth($data);
 
@@ -689,14 +680,12 @@ function info_image(&$data)
 	}
 }
 
-$endpoints[] = 'info';
-
-if (!in_array($endpoint, $endpoints))
+if (!in_array($endpoint, $keys))
 {
 	error_die($data, 404, 'unknown_endpoint');
 }
 
-($endpoint.'_image')($data);
+($endpoint.'_endpoint')($data);
 
 end_request($data);
 
