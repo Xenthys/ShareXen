@@ -99,7 +99,7 @@ define('ADMIN_IGNORE_KEYSPACE', false);
 \*****************************/
 
 
-define('VERSION', 0.7);
+define('VERSION', 0.71);
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -119,7 +119,7 @@ if (version_compare(PHP_VERSION, '7.0.0', '<'))
 	$data['http_code'] = 500;
 	$data['status'] = 'error';
 	$data['error'] = 'outdated_php_version';
-	$data['debug'] = '7.0.0 > '.PHP_VERSION;
+	$data['debug'] = PHP_VERSION.' < 7.0.0';
 
 	die(json_encode($data));
 }
@@ -227,6 +227,7 @@ function log_request($data)
 {
 	global $endpoints;
 	$uid = $data['user_id'];
+
 	$msg = NULL;
 
 	if ($uid)
