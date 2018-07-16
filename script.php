@@ -608,6 +608,8 @@ $endpoints[] = 'delete';
 
 function rename_image(&$data)
 {
+	enforce_auth($data);
+
 	if (!(defined('ALLOW_CUSTOM_NAMES') &&
 		ALLOW_CUSTOM_NAMES) && !user_is_admin($data))
 	{
