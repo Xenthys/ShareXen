@@ -54,10 +54,10 @@ The following endpoints are supported:
 
 | Name     | Supported parameters                                                                    |
 | -------- | --------------------------------------------------------------------------------------- |
+| `info`   | `auth_token` (user), `filename`                                                         |
 | `upload` | `auth_token` (user), `image` (file), `filename`                                         |
 | `delete` | `auth_token` (admin) or `deletion_hash`, `filename`                                     |
 | `rename` | `auth_token` (admin) or `auth_token` (user) and `deletion_hash`, `filename`, `new_name` |
-| `info`   | `auth_token` (user), `filename`                                                         |
 
 Using the `filename` parameter for the `upload` endpoint and accessing the `rename` parameter can be restricted by the configuration. Refer to the available options for more information.
 
