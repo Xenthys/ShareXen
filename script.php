@@ -99,7 +99,7 @@ define('ADMIN_IGNORE_KEYSPACE', false);
 \*****************************/
 
 
-define('VERSION', 0.71);
+define('VERSION', '1.0.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -268,7 +268,7 @@ function log_request($data)
 
 	if ($url)
 	{
-		$msg .= ' Generated URL: '.$url;
+		$msg .= ' File URL: '.$url;
 		if (isset($data['old_name']))
 		{
 			$msg .= ' (old name: '.$data['old_name'].')';

@@ -65,7 +65,7 @@ The following JSON fields can be returned:
 
 | Name             | Endpoints           | Type    | Description                                           |
 | ---------------- | ------------------- | ------- | ----------------------------------------------------- |
-| `api_version`    | all                 | Float   | Current API version number                            |
+| `api_version`    | all                 | String  | Current API version number (SemVer)                   |
 | `api_source`     | all                 | String  | URL to the GitHub source repository                   |
 | `endpoint`       | all                 | String  | Called API endpoint, or `unknown`                     |
 | `user_id`        | all                 | Integer | Current user ID, set to `0` for unauthenticated users |
