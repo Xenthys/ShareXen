@@ -99,7 +99,7 @@ define('ADMIN_IGNORE_KEYSPACE', false);
 \*****************************/
 
 
-define('VERSION', '1.0.0');
+define('VERSION', '1.0.1');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -439,7 +439,8 @@ function check_filename($name, $data)
 
 	$name = strval($name);
 
-	$regex = '/^['.KEYSPACE.']+\.('.implode('|', EXTS).')$/';
+	$regex = '/^['.preg_quote(KEYSPACE, '/').
+		']+\.('.implode('|', EXTS).')$/';
 
 	if (defined('ADMIN_IGNORE_KEYSPACE') &&
 		ADMIN_IGNORE_KEYSPACE && user_is_admin($data))
