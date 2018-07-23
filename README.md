@@ -97,6 +97,7 @@ The `info` endpoint implements several JSON fields, which can be returned or not
 | `keyspace`           | No    | Unspecified | String           | Keyspace used by the API (configuration)                             |
 | `name_length`        | No    | Unspecified | Integer          | Size of random names (configuration)                                 |
 | `allowed_extensions` | No    | Unspecified | Array of Strings | List of allowed file extensions (configuration)                      |
+| `allowed_characters` | No    | Unspecified | String           | Additional allowed characters, for custom filenames (configuration)  |
 | `custom_names`       | No    | Unspecified | Boolean          | Whether custom filenames are globally allowed or not (configuration) |
 | `files_count`        | No    | Unspecified | Integer          | Amount of files (matching allowed extensions) in the current folder  |
 | `files`              | Yes   | Unspecified | Array of Strings | List of files (matching allowed extensions) in the current folder    |

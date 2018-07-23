@@ -86,6 +86,12 @@ define('DISCORD_PREVENT_EMBED', true);
 // This isn't a comprehensive list of dangerous characters
 define('KEYSPACE', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 
+// Characters listed here will be allowed within
+// custom filenames, but won't be used to generate
+// random ones (which is what the KEYSPACE is for)
+// It has the same limitations than the KEYSPACE
+define('ALLOWED_CHARACTERS', '-_');
+
 // Allow admin users to use custom filenames
 // containing any character, thus ignoring the
 // above keyspace entirely, which can be a huge
@@ -99,7 +105,7 @@ define('ADMIN_IGNORE_KEYSPACE', false);
 \*****************************/
 
 
-define('VERSION', '1.0.1');
+define('VERSION', '1.1.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -335,11 +341,6 @@ function error_die($data, $code, $reason = 'unknown_error', $debug = '')
 	end_request($data, $code, 'error');
 }
 
-if (!defined('KEYSPACE'))
-{
-	define('KEYSPACE', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
-}
-
 function get_deletion_hash($name)
 {
 	$salt = defined('DELETION_SALT')?DELETION_SALT:0;
@@ -388,6 +389,11 @@ function user_is_admin($data)
 	return ($uid <= MAX_ADMIN_ID);
 }
 
+if (!defined('KEYSPACE'))
+{
+	define('KEYSPACE', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+}
+
 function random_str($length = NAME_LENGTH, $keyspace = KEYSPACE)
 {
 	$pieces = [];
@@ -430,6 +436,11 @@ function generate_all_urls(&$data, $deletion = true)
 	}
 }
 
+if (!defined('ALLOWED_CHARACTERS'))
+{
+	define('ALLOWED_CHARACTERS', '');
+}
+
 function check_filename($name, $data)
 {
 	if (!$name)
@@ -439,8 +450,8 @@ function check_filename($name, $data)
 
 	$name = strval($name);
 
-	$regex = '/^['.preg_quote(KEYSPACE, '/').
-		']+\.('.implode('|', EXTS).')$/';
+	$chars = preg_quote(KEYSPACE.ALLOWED_CHARACTERS, '/');
+	$regex = '/^['.$chars.']+\.('.implode('|', EXTS).')$/';
 
 	if (defined('ADMIN_IGNORE_KEYSPACE') &&
 		ADMIN_IGNORE_KEYSPACE && user_is_admin($data))
@@ -669,6 +680,7 @@ function info_endpoint(&$data)
 		$data['keyspace'] = KEYSPACE;
 		$data['name_length'] = NAME_LENGTH;
 		$data['allowed_extensions'] = EXTS;
+		$data['allowed_characters'] = ALLOWED_CHARACTERS;
 
 		$custom = defined('ALLOW_CUSTOM_NAMES');
 		$custom = $custom && ALLOW_CUSTOM_NAMES;
