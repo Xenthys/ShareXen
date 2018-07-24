@@ -2,9 +2,6 @@
 
 // ShareXen - Another ShareX Custom Uploader PHP Script
 
-// Benchmark, do not touch
-$start_time = microtime(true);
-
 
 /**************************\
 *    USER CONFIGURATION    *
@@ -18,13 +15,11 @@ $start_time = microtime(true);
 // intended recipient, this can be very dangerous
 // Set those to very long and random strings of
 // various characters nobody can ever guess
+// Random generator: https://bfnt.io/pwgen
 define('USER_TOKENS', [
 	'change-me', // Myself
 	'change-me' // Friend
 ]);
-
-// Allowed image extensions
-define('EXTS', ['png', 'jpg', 'jpeg', 'gif', 'webm', 'mp4']);
 
 // Deletion salt - NEVER SHARE THIS
 // Used to generate and compute deletion hashes
@@ -34,12 +29,20 @@ define('EXTS', ['png', 'jpg', 'jpeg', 'gif', 'webm', 'mp4']);
 // be able to delete files without deletion hashes
 // Mandatory for having deletion URLs, set this to
 // a very long and random string of various characters
+// Random generator: https://bfnt.io/pwgen
 define('DELETION_SALT', '');
+
+// List of allowed image extensions
+// Only put image extensions here unless
+// you edit the MIME_TYPE_REGEX option too
+// which is very discouraged for security reasons
+define('EXTS', ['png', 'jpg', 'jpeg', 'gif', 'webm', 'mp4']);
 
 
 /* OPTIONAL CONSTANTS BELOW THIS LINE */
 
-// Amount of random characters in the generated filename
+// Amount of characters used in a
+// randomly generated filename
 define('NAME_LENGTH', 7);
 
 // Allow all users to upload / rename files
@@ -99,13 +102,17 @@ define('ALLOWED_CHARACTERS', '-_');
 // File extensions are still checked
 define('ADMIN_IGNORE_KEYSPACE', false);
 
+// This regular expression is used to enforce
+// the mime type of uploaded files.
+define('MIME_TYPE_REGEX', '/^(image|video)\//');
+
 /*****************************\
 *  END OF USER CONFIGURATION  *
 * DO NOT TOUCH THE CODE BELOW *
 \*****************************/
 
 
-define('VERSION', '1.1.0');
+define('VERSION', '1.2.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -301,12 +308,10 @@ function log_request($data)
 
 function end_request($data, $code = 200, $status = 'success')
 {
-	global $start_time;
-
 	$data['http_code'] = $code;
 	$data['status'] = $status;
 
-	$data['execution_time'] = microtime(true) - $start_time;
+	$data['execution_time'] = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
 
 	ob_start();
 
@@ -549,6 +554,11 @@ function ensure_file_access(&$data, $name, $restricted = true)
 	}
 }
 
+if (!defined('MIME_TYPE_REGEX'))
+{
+	define('MIME_TYPE_REGEX', '/^(image|video)\//');
+}
+
 function upload_endpoint(&$data)
 {
 	enforce_auth($data);
@@ -571,7 +581,7 @@ function upload_endpoint(&$data)
 	$ext = '.'.$ext;
 
 	$mime = mime_content_type($file['tmp_name']);
-	if (!preg_match('/^(image|video)\//', $mime))
+	if (!preg_match(MIME_TYPE_REGEX, $mime))
 	{
 		error_die($data, 415, 'invalid_file_mime_type');
 	}
