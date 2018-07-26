@@ -112,7 +112,7 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '1.2.0');
+define('VERSION', '1.2.1');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -167,7 +167,7 @@ function get_parameter($field)
 $endpoint = get_parameter('endpoint');
 $data['endpoint'] = strval($endpoint) ?: 'unknown';
 
-function check_auth()
+function check_auth(&$data)
 {
 	$token = NULL;
 
@@ -194,7 +194,7 @@ function check_auth()
 
 	return ($uid + 1);
 }
-$data['user_id'] = check_auth();
+$data['user_id'] = check_auth($data);
 
 function send_to_discord($msg)
 {
@@ -236,7 +236,7 @@ function send_to_discord($msg)
 	return true;
 }
 
-function log_request($data)
+function log_request(&$data)
 {
 	global $endpoints;
 	$uid = $data['user_id'];
@@ -306,7 +306,7 @@ function log_request($data)
 	}
 }
 
-function end_request($data, $code = 200, $status = 'success')
+function end_request(&$data, $code = 200, $status = 'success')
 {
 	$data['http_code'] = $code;
 	$data['status'] = $status;
@@ -334,7 +334,7 @@ function end_request($data, $code = 200, $status = 'success')
 	die();
 }
 
-function error_die($data, $code, $reason = 'unknown_error', $debug = '')
+function error_die(&$data, $code, $reason = 'unknown_error', $debug = '')
 {
 	$data['error'] = $reason;
 
@@ -359,7 +359,7 @@ function get_deletion_hash($name)
 	return hash('sha256', $salt.$filehash.$name);
 }
 
-function enforce_auth($data)
+function enforce_auth(&$data)
 {
 	if ($data['user_id'] === 0)
 	{
@@ -367,7 +367,7 @@ function enforce_auth($data)
 	}
 }
 
-function user_is_admin($data)
+function user_is_admin(&$data)
 {
 	if (!$data)
 	{
@@ -446,7 +446,7 @@ if (!defined('ALLOWED_CHARACTERS'))
 	define('ALLOWED_CHARACTERS', '');
 }
 
-function check_filename($name, $data)
+function check_filename(&$data, $name)
 {
 	if (!$name)
 	{
@@ -482,7 +482,7 @@ function get_custom_filename(&$data, $check = true, $field = 'filename')
 
 	$filename = get_parameter($field);
 
-	if (check_filename($filename, $data))
+	if (check_filename($data, $filename))
 	{
 		if ($check && file_exists($filename))
 		{
