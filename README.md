@@ -49,6 +49,7 @@ The following string parameters are recognized by the API:
 | `deletion_hash` | GET or POST | Secret security key for deleting / renaming a file.    |
 | `filename`      | GET or POST | For endpoints supporting / requiring a filename.       |
 | `new_name`      | GET or POST | For the `rename` endpoint, file mustn't already exist. |
+| `domain`        | GET or POST | Set a custom domain name for the `url` answer field.   |
 
 The following endpoints are supported:
 

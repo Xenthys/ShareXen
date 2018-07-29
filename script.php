@@ -112,7 +112,7 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '1.2.1');
+define('VERSION', '1.3.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -414,14 +414,18 @@ function random_str($length = NAME_LENGTH, $keyspace = KEYSPACE)
 function generate_all_urls(&$data, $deletion = true)
 {
 	$https = $_SERVER['HTTPS'];
-	$address = $_SERVER['SERVER_NAME'];
-	$script = $_SERVER['SCRIPT_NAME'];
-	$name = $data['filename'];
+	$protocol = 'http'.($https?'s':'').'://';
 
-	$address = 'http'.($https?'s':'').'://'.$address;
+	$domain = get_parameter('domain');
+	$host = $_SERVER['HTTP_HOST'];
+	$domain = $domain ?: $host;
+
+	$script = $_SERVER['SCRIPT_NAME'];
 	$sub = rtrim(dirname($script), '/').'/';
 
-	$data['url'] = $address.$sub.$name;
+	$name = $data['filename'];
+
+	$data['url'] = $protocol.$domain.$sub.$name;
 
 	if (!$deletion)
 	{
@@ -434,10 +438,9 @@ function generate_all_urls(&$data, $deletion = true)
 	{
 		$data['deletion_hash'] = $hash;
 
-		$data['deletion_url'] = $address.
-			$script.'?endpoint=delete'.
-			'&deletion_hash='.$hash.
-			'&filename='.$name;
+		$data['deletion_url'] = $protocol.$host.
+			$_SERVER['REQUEST_URI'].'?endpoint=delete'.
+			'&deletion_hash='.$hash.'&filename='.$name;
 	}
 }
 
