@@ -50,6 +50,7 @@ The following string parameters are recognized by the API:
 | `filename`      | GET or POST | For endpoints supporting / requiring a filename.       |
 | `new_name`      | GET or POST | For the `rename` endpoint, file mustn't already exist. |
 | `domain`        | GET or POST | Set a custom domain name for the `url` answer field.   |
+| `protocol`      | GET or POST | Set a custom protocol for the `url` answer field.      |
 
 The following endpoints are supported:
 

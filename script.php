@@ -112,7 +112,7 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '1.3.0');
+define('VERSION', '1.4.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -413,8 +413,15 @@ function random_str($length = NAME_LENGTH, $keyspace = KEYSPACE)
 
 function generate_all_urls(&$data, $deletion = true)
 {
-	$https = $_SERVER['HTTPS'];
-	$protocol = 'http'.($https?'s':'').'://';
+	$protocol = get_parameter('protocol');
+
+	if (!$protocol)
+	{
+		$https = $_SERVER['HTTPS'];
+		$protocol = 'http'.($https?'s':'');
+	}
+
+	$protocol = $protocol.'://';
 
 	$domain = get_parameter('domain');
 	$host = $_SERVER['HTTP_HOST'];
