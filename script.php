@@ -10,31 +10,34 @@
 
 /* MANDATORY CONSTANTS BELOW THIS LINE */
 
-// Authentication tokens for users
+// List of ShareXen users
+// Format: 'username' => 'token'
+// Username can be any string you want, but
+// keep in mind users can see their own names
 // Never share a token with anyone else than the
 // intended recipient, this can be very dangerous
-// Set those to very long and random strings of
+// Set tokens to very long and random strings of
 // various characters nobody can ever guess
 // Random generator: https://bfnt.io/pwgen
-define('USER_TOKENS', [
-	'change-me', // Myself
-	'change-me' // Friend
+define('USERS', [
+	'Mario' => 'change-me',
+	'Luigi' => 'change-me',
 ]);
 
-// Deletion salt - NEVER SHARE THIS
-// Used to generate and compute deletion hashes
+// Security keys salt - NEVER SHARE THIS
+// Used to generate and compute security keys
 // Changing this will render all previously generated
 // deletion URLs invalid without any exception
 // Keep empty to disable this feature, only admins will
-// be able to delete files without deletion hashes
+// then be able to delete files without security keys
 // Mandatory for having deletion URLs, set this to
 // a very long and random string of various characters
 // Random generator: https://bfnt.io/pwgen
-define('DELETION_SALT', '');
+define('SALT', '');
 
 // List of allowed image extensions
 // Only put image extensions here unless
-// you edit the MIME_TYPE_REGEX option too
+// you edit the MIME_TYPE_REGEX option as well,
 // which is very discouraged for security reasons
 define('EXTS', ['png', 'jpg', 'jpeg', 'gif', 'webm', 'mp4']);
 
@@ -54,11 +57,10 @@ define('ALLOW_CUSTOM_NAMES', false);
 // Admin users can rename / delete all files
 // and upload with custom filenames independently
 // of the above ALLOW_CUSTOM_NAMES parameter
-// A user's ID is their token's position
-// Every user ID under or equal to the specified
-// value will be considered as an administrator
-// Set to 0 to disable this feature altogether
-define('MAX_ADMIN_ID', 0);
+// This is a list of usernames from the above
+// USERS parameter, trusted with great powers
+// Example: ['Mario', 'Toad'] (sorry Luigi)
+define('ADMINS', []);
 
 // Log requests to Discord using a webhook
 // If you do not know what it is about, please ignore
@@ -102,8 +104,8 @@ define('ALLOWED_CHARACTERS', '-_');
 // File extensions are still checked
 define('ADMIN_IGNORE_KEYSPACE', false);
 
-// This regular expression is used to enforce
-// the mime type of uploaded files.
+// This regular expression is used to
+// enforce the mime type of uploaded files.
 define('MIME_TYPE_REGEX', '/^(image|video)\//');
 
 /*****************************\
@@ -112,7 +114,7 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '1.4.0');
+define('VERSION', '2.0.0-beta1');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -167,34 +169,34 @@ function get_parameter($field)
 $endpoint = get_parameter('endpoint');
 $data['endpoint'] = strval($endpoint) ?: 'unknown';
 
-function check_auth(&$data)
+function perform_auth(&$data)
 {
-	$token = NULL;
-
-	if (isset($_POST['auth_token']))
+	if (!isset($_POST['token']))
 	{
-		$token = $_POST['auth_token'];
-	}
-	else
-	{
-		return 0;
+		return;
 	}
 
-	if ($token === 'change-me')
-	{
-		return 0;
-	}
+	$token = $_POST['token'];
 
-	$uid = array_search($token, USER_TOKENS);
-
-	if ($uid === false)
+	if (!$token || $token === 'change-me')
 	{
 		error_die($data, 403, 'invalid_credentials');
 	}
 
-	return ($uid + 1);
+	foreach (USERS as $u => $t) {
+		if ($t === $token)
+		{
+			$data['username'] = $u;
+			break;
+		}
+	}
+
+	if (!isset($data['username']))
+	{
+		error_die($data, 403, 'invalid_credentials');
+	}
 }
-$data['user_id'] = check_auth($data);
+perform_auth($data);
 
 function send_to_discord($msg)
 {
@@ -208,21 +210,23 @@ function send_to_discord($msg)
 		return false;
 	}
 
+	$headers = [
+		'Content-Type: application/json',
+		'User-Agent: ShareXen/'.VERSION.' (+'.SOURCE.')'
+	];
+
 	$c['content'] = '`['.date('H:i:s').']` '.$msg;
 
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, DISCORD_WEBHOOK_URL);
+
 	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	curl_setopt($ch, CURLOPT_HEADER, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_URL, DISCORD_WEBHOOK_URL);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($c));
 
-	$r = curl_exec($ch);
-	$r = json_decode($r, true);
-
+	$r = json_decode(curl_exec($ch), true);
 	$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 	curl_close($ch);
@@ -239,13 +243,19 @@ function send_to_discord($msg)
 function log_request(&$data)
 {
 	global $endpoints;
-	$uid = $data['user_id'];
+
+	$user = NULL;
+
+	if (isset($data['username']))
+	{
+		$user = $data['username'];
+	}
 
 	$msg = NULL;
 
-	if ($uid)
+	if ($user)
 	{
-		$msg .= 'Authenticated user #'.$uid.' ';
+		$msg .= 'Authenticated user '.$user.' ';
 	}
 	else
 	{
@@ -346,22 +356,20 @@ function error_die(&$data, $code, $reason = 'unknown_error', $debug = '')
 	end_request($data, $code, 'error');
 }
 
-function get_deletion_hash($name)
+function retrieve_key($name)
 {
-	$salt = defined('DELETION_SALT')?DELETION_SALT:0;
-
-	if (!$salt)
+	if (!defined('SALT'))
 	{
 		return false;
 	}
 
 	$filehash = hash_file('sha256', $name);
-	return hash('sha256', $salt.$filehash.$name);
+	return hash('sha256', SALT.$filehash.$name);
 }
 
 function enforce_auth(&$data)
 {
-	if ($data['user_id'] === 0)
+	if (!isset($data['username']))
 	{
 		error_die($data, 401, 'unauthenticated_request');
 	}
@@ -369,29 +377,20 @@ function enforce_auth(&$data)
 
 function user_is_admin(&$data)
 {
-	if (!$data)
+	if (!isset($data['username']))
 	{
 		return false;
 	}
 
-	if (!defined('MAX_ADMIN_ID'))
+	if (!defined('ADMINS'))
 	{
-		define('MAX_ADMIN_ID', 0);
+		define('ADMINS', []);
 	}
 
-	$uid = $data['user_id'];
+	$user = $data['username'];
+	$admin = array_search($user, ADMINS);
 
-	if (MAX_ADMIN_ID <= 0)
-	{
-		return false;
-	}
-
-	if ($uid === 0)
-	{
-		return false;
-	}
-
-	return ($uid <= MAX_ADMIN_ID);
+	return ($admin !== false);
 }
 
 if (!defined('KEYSPACE'))
@@ -439,15 +438,15 @@ function generate_all_urls(&$data, $deletion = true)
 		return;
 	}
 
-	$hash = get_deletion_hash($name);
+	$key = retrieve_key($name);
 
-	if ($hash)
+	if ($key)
 	{
-		$data['deletion_hash'] = $hash;
+		$data['key'] = $key;
 
 		$data['deletion_url'] = $protocol.$host.
 			$_SERVER['REQUEST_URI'].'?endpoint=delete'.
-			'&deletion_hash='.$hash.'&filename='.$name;
+			'&key='.$key.'&filename='.$name;
 	}
 }
 
@@ -543,18 +542,18 @@ function ensure_file_access(&$data, $name, $restricted = true)
 	}
 	elseif ($check_hash)
 	{
-		$dh = get_parameter('deletion_hash');
+		$key = get_parameter('key');
 
-		if (isset($dh))
+		if (isset($key))
 		{
-			$token = get_deletion_hash($name);
+			$real_key = retrieve_key($name);
 
-			if (!$token || $dh !== $token)
+			if (!$real_key || $key !== $real_key)
 			{
-				error_die($data, 403, 'invalid_deletion_hash');
+				error_die($data, 403, 'invalid_key');
 			}
 
-			$data['method'] = 'deletion_hash';
+			$data['method'] = 'key';
 		}
 	}
 

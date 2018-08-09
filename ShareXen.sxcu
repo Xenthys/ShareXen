@@ -5,7 +5,7 @@
   "FileFormName": "image",
   "Arguments": {
     "endpoint": "upload",
-    "auth_token": "change-me"
+    "token": "change-me"
   },
   "URL": "$json:url$",
   "DeletionURL": "$json:deletion_url$"
