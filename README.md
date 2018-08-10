@@ -19,7 +19,7 @@ Please note that some features (such as renaming a file) can't be used from Shar
 
 ## Installing the API
 
-1. Download the `script.php` file from this repository.
+1. Download the `sharexen.php` file from this repository.
 2. Open it with a text editor, and edit the configuration to your needs.
 3. Upload it to your webhost by any means, using whichever filename you want.
 
