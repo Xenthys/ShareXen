@@ -114,7 +114,7 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '2.0.0-beta1');
+define('VERSION', '2.0.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
