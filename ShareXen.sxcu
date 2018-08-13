@@ -1,7 +1,7 @@
 ﻿{
   "Name": "ShareXen",
   "DestinationType": "ImageUploader",
-  "RequestURL": "https://your.domain/script.php",
+  "RequestURL": "https://your.domain/sharexen.php",
   "FileFormName": "image",
   "Arguments": {
     "endpoint": "upload",
