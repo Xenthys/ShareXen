@@ -1,10 +1,10 @@
 # ShareXen
 
-ShareXen is an API, which is really just another ShareX custom uploader PHP script, but done right. It requires at least PHP 7.0 to run, along with the cURL extension if you plan to use Discord webhooks for logging requests. No database is required.
+ShareXen is an API, which is really just another ShareX custom uploader PHP script, but done right. It requires at least PHP 7.0 to run, along with the cURL extension if you plan to use Discord webhooks to log requests. No database is required.
 
 This API returns strict JSON results. You can easily parse its answers within your own scripts.
 
-If you have any problem setting this up, you can ask for help on [Discord](https://discordapp.com/invite/bn) directly.
+If you have any problem setting this up, you can ask for help on [ShareX's Discord server](https://discordapp.com/invite/sharex) directly.
 
 ## Features
 
@@ -65,23 +65,24 @@ Using the `filename` parameter for the `upload` endpoint and accessing the `rena
 
 The following JSON fields can be returned:
 
-| Name             | Endpoints           | Type    | Description                                      |
-| ---------------- | ------------------- | ------- | ------------------------------------------------ |
-| `api_version`    | all                 | String  | Current API version number (SemVer)              |
-| `api_source`     | all                 | String  | URL to the GitHub source repository              |
-| `endpoint`       | all                 | String  | Called API endpoint, or `unknown`                |
-| `username`       | all                 | String  | Username, only for authenticated requests        |
-| `status`         | all                 | String  | Request status, either `success` or `error`      |
-| `http_code`      | all                 | Integer | Mirror of the returned HTTP code                 |
-| `filename`       | all                 | String  | Name of the file as stored on the server         |
-| `execution_time` | all                 | Float   | Script execution time, in seconds                |
-| `url`            | `upload` & `rename` | String  | URL for the new file                             |
-| `key`            | `upload` & `rename` | String  | Security key for the new file                    |
-| `deletion_url`   | `upload` & `rename` | String  | Full deletion URL for the new file               |
-| `method`         | `delete` & `rename` | String  | Authentication method used to call the endpoint  |
-| `old_name`       | `rename`            | String  | Previous name of the file                        |
-| `error`          | any                 | String  | Static error code, only sent if anything fails   |
-| `debug`          | any                 | String  | Human-readable information, only for some errors |
+| Name              | Endpoints           | Type    | Description                                      |
+| ----------------- | ------------------- | ------- | ------------------------------------------------ |
+| `api_version`     | all                 | String  | Current API version number (SemVer)              |
+| `api_source`      | all                 | String  | URL to the GitHub source repository              |
+| `endpoint`        | all                 | String  | Called API endpoint, or `unknown`                |
+| `username`        | all                 | String  | Username, only for authenticated requests        |
+| `status`          | all                 | String  | Request status, either `success` or `error`      |
+| `http_code`       | all                 | Integer | Mirror of the returned HTTP code                 |
+| `filename`        | all                 | String  | Name of the file as stored on the server         |
+| `execution_time`  | all                 | Float   | Script execution time, in seconds                |
+| `iteration_count` | `upload`            | Integer | Attempts at generating a unique filename         |
+| `url`             | `upload` & `rename` | String  | URL for the new file                             |
+| `key`             | `upload` & `rename` | String  | Security key for the new file                    |
+| `deletion_url`    | `upload` & `rename` | String  | Full deletion URL for the new file               |
+| `method`          | `delete` & `rename` | String  | Authentication method used to call the endpoint  |
+| `old_name`        | `rename`            | String  | Previous name of the file                        |
+| `error`           | any                 | String  | Static error code, only sent if anything fails   |
+| `debug`           | any                 | String  | Human-readable information, only for some errors |
 
 The `info` endpoint implements several JSON fields, which can be returned or not depending on your access level, whether you specify a filename, and whether it exists. Here is the full specification:
 
@@ -116,4 +117,4 @@ Security keys are only as secure as your `SALT` is. Make sure to have a **very r
 
 ## Contributing
 
-If you want to help improve this API or its documentation, feel free to come on [Discord](https://discordapp.com/invite/bn) to suggest modifications. You can also open a pull-request, but make sure to **sign your commits with GPG** and **respect the script's programming style**, so we can keep it as readable as possible.
+If you want to help improve this API or its documentation, feel free to come on [Blackfields Network's Discord server](https://discordapp.com/invite/bn) to suggest modifications. You can also open a pull-request, but make sure to **sign your commits with GPG** and **respect the script's programming style**, so we can keep it as readable as possible.

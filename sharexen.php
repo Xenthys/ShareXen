@@ -25,6 +25,7 @@ define('USERS', [
 ]);
 
 // Security keys salt - NEVER SHARE THIS
+// Format: define('SALT', 'randomstring');
 // Used to generate and compute security keys
 // Changing this will render all previously generated
 // deletion URLs invalid without any exception
@@ -83,12 +84,16 @@ define('DISCORD_PREVENT_EMBED', true);
 /***************************************\
 * CHANGE THEM AT YOUR OWN RISK AND ONLY *
 * IF YOU REALLY KNOW WHAT YOU ARE DOING *
+*****************************************
+* DO NOT ASK FOR SUPPORT IF THOSE BREAK *
+* ANYTHING IN THIS SCRIPT AFTER EDITION *
 \***************************************/
 
 // Characters used to randomly generate the filename
 // By security and to avoid breaking this application,
 // do not use the following characters: / \ . : # ? &
 // This isn't a comprehensive list of dangerous characters
+// The random_str function might break if you mess with this
 define('KEYSPACE', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 
 // Characters listed here will be allowed within
@@ -114,30 +119,13 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '2.0.0');
+define('VERSION', '2.1.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
 	'api_version' => VERSION,
 	'api_source' => SOURCE
 ];
-
-if (version_compare(PHP_VERSION, '7.0.0', '<'))
-{
-	http_response_code(500);
-
-	header('Content-Type: application/json; charset=utf-8');
-
-	error_log('ShareXen v'.VERSION.': you need to use at least PHP 7.0'.
-		' in order to run this script. You are running PHP '.PHP_VERSION);
-
-	$data['http_code'] = 500;
-	$data['status'] = 'error';
-	$data['error'] = 'outdated_php_version';
-	$data['debug'] = PHP_VERSION.' < 7.0.0';
-
-	die(json_encode($data));
-}
 
 $endpoints = [
 	'upload' => "\u{1F517}",
@@ -401,7 +389,7 @@ if (!defined('KEYSPACE'))
 function random_str($length = NAME_LENGTH, $keyspace = KEYSPACE)
 {
 	$pieces = [];
-	$max = mb_strlen($keyspace, '8bit') - 1;
+	$max = strlen($keyspace) - 1;
 
 	for ($i = 0; $i < $length; ++$i) {
 		$pieces []= $keyspace[random_int(0, $max)];
@@ -604,12 +592,23 @@ function upload_endpoint(&$data)
 
 	if (!$name)
 	{
-		$name = random_str().$ext;
-
-		while (file_exists($name))
+		for ($i = 1; $i <= 10; $i++)
 		{
-			error_log('ShareXen Collision: File "'.$name.'" already exists.');
 			$name = random_str().$ext;
+
+			if (!file_exists($name))
+			{
+				$data['iteration_count'] = $i;
+				break;
+			}
+
+			error_log('ShareXen Collision (iteration #'.
+				$i.'): File "'.$name.'" already exists.');
+
+			if ($i == 10)
+			{
+				error_die($data, 500, 'cannot_generate_unique_filename');
+			}
 		}
 	}
 
