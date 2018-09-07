@@ -25,22 +25,23 @@ define('USERS', [
 ]);
 
 // Security keys salt - NEVER SHARE THIS
-// Format: define('SALT', 'randomstring');
 // Used to generate and compute security keys
 // Changing this will render all previously generated
 // deletion URLs invalid without any exception
-// Keep empty to disable this feature, only admins will
-// then be able to delete files without security keys
+// Keep as-is, set empty, or remove the define
+// to disable this feature, only admins will then
+// be able to delete files without security keys
 // Mandatory for having deletion URLs, set this to
 // a very long and random string of various characters
 // Random generator: https://bfnt.io/pwgen
-define('SALT', '');
+define('SALT', 'change-me');
 
 // List of allowed image extensions
 // Only put image extensions here unless
 // you edit the MIME_TYPE_REGEX option as well,
 // which is very discouraged for security reasons
-define('EXTS', ['png', 'jpg', 'jpeg', 'gif', 'webm', 'mp4']);
+// Regular expressions can be used as well here
+define('EXTS', ['png', 'jpe?g', 'gif', 'webm', 'mp4']);
 
 
 /* OPTIONAL CONSTANTS BELOW THIS LINE */
@@ -119,7 +120,7 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '2.1.0');
+define('VERSION', '2.1.1');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
@@ -346,7 +347,7 @@ function error_die(&$data, $code, $reason = 'unknown_error', $debug = '')
 
 function retrieve_key($name)
 {
-	if (!defined('SALT'))
+	if (!defined('SALT') || !SALT || SALT === "change-me")
 	{
 		return false;
 	}
