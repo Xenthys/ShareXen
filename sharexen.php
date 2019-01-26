@@ -65,10 +65,11 @@ define('ALLOW_CUSTOM_NAMES', false);
 define('ADMINS', []);
 
 // Log requests to Discord using a webhook
-// If you do not know what it is about, please ignore
+// If you do not know what this is about, please ignore
 // It is not recommended to set this if your API is heavily used
 // By security, make sure the webhook outputs in a channel only you can see
 // https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks
+// Your PHP configuration must have the "allow_url_fopen" option enabled
 define('DISCORD_WEBHOOK_URL', '');
 
 // If the Discord webhook above is enabled,
@@ -103,6 +104,11 @@ define('KEYSPACE', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567
 // It has the same limitations than the KEYSPACE
 define('ALLOWED_CHARACTERS', '-_');
 
+// The maximum amount of attempts ShareXen will
+// perform in order to generate a unique random
+// name in case of collision with an existing file
+define('MAX_ITERATIONS', 10);
+
 // Allow admin users to use custom filenames
 // containing any character, thus ignoring the
 // above keyspace entirely, which can be a huge
@@ -120,153 +126,180 @@ define('MIME_TYPE_REGEX', '/^(image|video)\//');
 \*****************************/
 
 
-define('VERSION', '2.1.1');
-define('SOURCE', 'https://github.com/Xenthys/ShareXen');
+function check_constants()
+{
+	if (!defined('USERS') || gettype(USERS) !== 'array')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Missing or invalid USERS constant, must be an array.');
+	}
 
-$data = [
-	'api_version' => VERSION,
-	'api_source' => SOURCE
-];
+	if (!defined('EXTS') || gettype(EXTS) !== 'array')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Missing or invalid EXTS constant, must be an array.');
+	}
 
-$endpoints = [
-	'upload' => "\u{1F517}",
-	'delete' => "\u{1F5D1}",
-	'rename' => "\u{1F4DD}",
-	'info' => "\u{2139}"
-];
+	if (!defined('SALT'))
+	{
+		define('SALT', '');
+	}
+	if (gettype(SALT) !== 'string')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid SALT constant, must be a string.');
+	}
 
-$keys = array_keys($endpoints);
+	if (!defined('NAME_LENGTH'))
+	{
+		define('NAME_LENGTH', 7);
+	}
+	if (gettype(NAME_LENGTH) !== 'integer')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid NAME_LENGTH constant, must be an integer.');
+	}
+
+	if (!defined('ALLOW_CUSTOM_NAMES'))
+	{
+		define('ALLOW_CUSTOM_NAMES', false);
+	}
+	if (gettype(ALLOW_CUSTOM_NAMES) !== 'boolean')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid ALLOW_CUSTOM_NAMES constant, must be a boolean.');
+	}
+
+	if (!defined('ADMINS'))
+	{
+		define('ADMINS', []);
+	}
+	if (gettype(ADMINS) !== 'array')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid ADMINS constant, must be an array.');
+	}
+
+	if (!defined('DISCORD_WEBHOOK_URL'))
+	{
+		define('DISCORD_WEBHOOK_URL', '');
+	}
+	if (gettype(DISCORD_WEBHOOK_URL) !== 'string')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid DISCORD_WEBHOOK_URL constant, must be a string.');
+	}
+
+	if (!defined('DISCORD_LOG_ERRORS'))
+	{
+		define('DISCORD_LOG_ERRORS', true);
+	}
+	if (gettype(DISCORD_LOG_ERRORS) !== 'boolean')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid DISCORD_LOG_ERRORS constant, must be a boolean.');
+	}
+
+	if (!defined('DISCORD_PREVENT_EMBED'))
+	{
+		define('DISCORD_PREVENT_EMBED', true);
+	}
+	if (gettype(DISCORD_PREVENT_EMBED) !== 'boolean')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid DISCORD_PREVENT_EMBED constant, must be a boolean.');
+	}
+
+	if (!defined('KEYSPACE'))
+	{
+		define('KEYSPACE', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+	}
+	if (gettype(KEYSPACE) !== 'string')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid KEYSPACE constant, must be a string.');
+	}
+
+	if (!defined('ALLOWED_CHARACTERS'))
+	{
+		define('ALLOWED_CHARACTERS', '-_');
+	}
+	if (gettype(ALLOWED_CHARACTERS) !== 'string')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid ALLOWED_CHARACTERS constant, must be a string.');
+	}
+
+	if (!defined('MAX_ITERATIONS'))
+	{
+		define('MAX_ITERATIONS', 10);
+	}
+	if (gettype(MAX_ITERATIONS) !== 'integer')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid MAX_ITERATIONS constant, must be an integer.');
+	}
+
+	if (!defined('ADMIN_IGNORE_KEYSPACE'))
+	{
+		define('ADMIN_IGNORE_KEYSPACE', false);
+	}
+	if (gettype(ADMIN_IGNORE_KEYSPACE) !== 'boolean')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid ADMIN_IGNORE_KEYSPACE constant, must be a boolean.');
+	}
+
+	if (!defined('MIME_TYPE_REGEX'))
+	{
+		define('MIME_TYPE_REGEX', '/^(image|video)\//');
+	}
+	if (gettype(MIME_TYPE_REGEX) !== 'string')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid MIME_TYPE_REGEX constant, must be a string.');
+	}
+}
 
 function get_parameter($field)
 {
-	if (isset($_GET[$field]))
-	{
-		$result = $_GET[$field];
-
-		if ($result)
-		{
-			return $result;
-		}
-	}
-
-	if (isset($_POST[$field]))
-	{
-		return $_POST[$field];
-	}
+	return @$_GET[$field] ?: @$_POST[$field];
 }
-
-$endpoint = get_parameter('endpoint');
-$data['endpoint'] = strval($endpoint) ?: 'unknown';
-
-function perform_auth(&$data)
-{
-	if (!isset($_POST['token']))
-	{
-		return;
-	}
-
-	$token = $_POST['token'];
-
-	if (!$token || $token === 'change-me')
-	{
-		error_die($data, 403, 'invalid_credentials');
-	}
-
-	foreach (USERS as $u => $t) {
-		if ($t === $token)
-		{
-			$data['username'] = $u;
-			break;
-		}
-	}
-
-	if (!isset($data['username']))
-	{
-		error_die($data, 403, 'invalid_credentials');
-	}
-}
-perform_auth($data);
 
 function send_to_discord($msg)
 {
-	if (!defined('DISCORD_WEBHOOK_URL') || !DISCORD_WEBHOOK_URL)
-	{
-		return false;
-	}
+	$c['content'] = "`[".date('H:i:s')."]` $msg";
 
-	if (!function_exists('curl_init'))
-	{
-		return false;
-	}
-
-	$headers = [
-		'Content-Type: application/json',
-		'User-Agent: ShareXen/'.VERSION.' (+'.SOURCE.')'
+	$opts['http'] = [
+		'method' => 'POST',
+		'header' => "Content-Type: application/json\r\n".
+			"User-Agent: ShareXen/".VERSION." (+".SOURCE.")\r\n",
+		'content' => json_encode($c)
 	];
 
-	$c['content'] = '`['.date('H:i:s').']` '.$msg;
-
-	$ch = curl_init();
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_HEADER, true);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_URL, DISCORD_WEBHOOK_URL);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($c));
-
-	$r = json_decode(curl_exec($ch), true);
-	$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-	curl_close($ch);
-
-	if ($code !== 204)
-	{
-		error_log('ShareXen Webhook Error: '.$r['message']);
-		return false;
-	}
-
-	return true;
+	$ctx = stream_context_create($opts);
+	return @file_get_contents(DISCORD_WEBHOOK_URL, false, $ctx) === '';
 }
 
 function log_request(&$data)
 {
 	global $endpoints;
 
-	$user = NULL;
+	$url = @$data['url'];
+	$user = @$data['username'];
 
-	if (isset($data['username']))
-	{
-		$user = $data['username'];
-	}
+	$msg = $user ? "Authenticated user $user" : 'Unauthenticated user';
 
-	$msg = NULL;
+	$status = @$data['error'] ?: $data['status'];
+	$msg .= " got a $data[http_code] ($status) reponse ".
+		"code, after calling the \"$endpoint\" endpoint.";
 
-	if ($user)
-	{
-		$msg .= 'Authenticated user '.$user.' ';
-	}
-	else
-	{
-		$msg .= 'Unauthenticated user ';
-	}
-
-	$endpoint = $data['endpoint'];
-	$status = $data['error'] ?: $data['status'];
-	$msg .= 'got a '.$data['http_code'].' ('.$status.') reponse '.
-		'code, after calling the "'.$endpoint.'" endpoint.';
-
-	$discord_logging = true;
-	$discord_header = "\u{2705}";
-
-	if (isset($endpoints[$endpoint]))
-	{
-		$discord_header = $endpoints[$endpoint] ?: $discord_header;
-	}
+	$discord_logging = DISCORD_WEBHOOK_URL ? true : false;
+	$discord_header = @$endpoints[$endpoint] ?: "\u{2705}";
 
 	if ($status !== 'success')
 	{
-		if (defined('DISCORD_LOG_ERRORS') && DISCORD_LOG_ERRORS)
+		if (DISCORD_LOG_ERRORS)
 		{
 			$discord_header = "\u{26A0}";
 		}
@@ -276,32 +309,32 @@ function log_request(&$data)
 		}
 	}
 
-	$url = isset($data['url']) ? $data['url'] : 0;
-
 	if ($url)
 	{
-		$msg .= ' File URL: '.$url;
+		$msg .= " File URL: $url";
 		if (isset($data['old_name']))
 		{
-			$msg .= ' (old name: '.$data['old_name'].')';
+			$msg .= " (old name: $data[old_name])";
 		}
 	}
 	elseif (isset($data['filename']))
 	{
-		$msg .= ' Target file: '.$data['filename'];
+		$msg .= " Target file: $data[filename]";
 	}
 
-	error_log('ShareXen v'.VERSION.': '.$msg);
+	error_log("ShareXen v".VERSION.": $msg");
 
 	if ($discord_logging)
 	{
-		if (defined('DISCORD_PREVENT_EMBED') &&
-			DISCORD_PREVENT_EMBED && $url)
+		if (DISCORD_PREVENT_EMBED && $url)
 		{
-			$msg = str_replace($url, '<'.$url.'>', $msg);
+			$msg = str_replace($url, "<$url>", $msg);
 		}
 
-		send_to_discord($discord_header.' '.$msg);
+		if (!send_to_discord("$discord_header $msg"))
+		{
+			error_log('ShareXen Error: cannot send to Discord.');
+		}
 	}
 }
 
@@ -310,7 +343,7 @@ function end_request(&$data, $code = 200, $status = 'success')
 	$data['http_code'] = $code;
 	$data['status'] = $status;
 
-	$data['execution_time'] = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+	$data['execution_time'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 
 	ob_start();
 
@@ -345,9 +378,33 @@ function error_die(&$data, $code, $reason = 'unknown_error', $debug = '')
 	end_request($data, $code, 'error');
 }
 
+function perform_auth(&$data)
+{
+	if (!isset($_POST['token']))
+	{
+		return;
+	}
+
+	$token = $_POST['token'];
+
+	if (!$token || $token === 'change-me')
+	{
+		error_die($data, 403, 'invalid_credentials');
+	}
+
+	$user = array_search($token, USERS);
+
+	if ($user === false)
+	{
+		error_die($data, 403, 'invalid_credentials');
+	}
+
+	$data['username'] = strval($user);
+}
+
 function retrieve_key($name)
 {
-	if (!defined('SALT') || !SALT || SALT === "change-me")
+	if (!SALT || SALT === 'change-me')
 	{
 		return false;
 	}
@@ -371,32 +428,19 @@ function user_is_admin(&$data)
 		return false;
 	}
 
-	if (!defined('ADMINS'))
-	{
-		define('ADMINS', []);
-	}
-
-	$user = $data['username'];
-	$admin = array_search($user, ADMINS);
-
-	return ($admin !== false);
-}
-
-if (!defined('KEYSPACE'))
-{
-	define('KEYSPACE', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+	return array_search($data['username'], ADMINS) !== false;
 }
 
 function random_str($length = NAME_LENGTH, $keyspace = KEYSPACE)
 {
-	$pieces = [];
+	$result = '';
 	$max = strlen($keyspace) - 1;
 
-	for ($i = 0; $i < $length; ++$i) {
-		$pieces []= $keyspace[random_int(0, $max)];
+	for ($i = 0; $i < $length; $i++) {
+		$result .= $keyspace[random_int(0, $max)];
 	}
 
-	return implode('', $pieces);
+	return $result;
 }
 
 function generate_all_urls(&$data, $deletion = true)
@@ -420,7 +464,7 @@ function generate_all_urls(&$data, $deletion = true)
 
 	$name = $data['filename'];
 
-	$data['url'] = $protocol.$domain.$sub.$name;
+	$data['url'] = "$protocol$domain$sub$name";
 
 	if (!$deletion)
 	{
@@ -433,15 +477,10 @@ function generate_all_urls(&$data, $deletion = true)
 	{
 		$data['key'] = $key;
 
-		$data['deletion_url'] = $protocol.$host.
-			$_SERVER['REQUEST_URI'].'?endpoint=delete'.
-			'&key='.$key.'&filename='.$name;
+		$data['deletion_url'] = "$protocol$host".
+			"$_SERVER[REQUEST_URI]?endpoint=delete".
+			"&key=$key&filename=$name";
 	}
-}
-
-if (!defined('ALLOWED_CHARACTERS'))
-{
-	define('ALLOWED_CHARACTERS', '');
 }
 
 function check_filename(&$data, $name)
@@ -454,26 +493,19 @@ function check_filename(&$data, $name)
 	$name = strval($name);
 
 	$chars = preg_quote(KEYSPACE.ALLOWED_CHARACTERS, '/');
-	$regex = '/^['.$chars.']+\.('.implode('|', EXTS).')$/';
+	$regex = "/^[$chars]+\.(".implode('|', EXTS).")$/";
 
-	if (defined('ADMIN_IGNORE_KEYSPACE') &&
-		ADMIN_IGNORE_KEYSPACE && user_is_admin($data))
+	if (ADMIN_IGNORE_KEYSPACE && user_is_admin($data))
 	{
 		$regex = '/^.+\.('.implode('|', EXTS).')$/';
 	}
 
-	if (!preg_match($regex, $name))
-	{
-		return false;
-	}
-
-	return true;
+	return preg_match($regex, $name);
 }
 
 function get_custom_filename(&$data, $check = true, $field = 'filename')
 {
-	if ($check && !(defined('ALLOW_CUSTOM_NAMES') &&
-		ALLOW_CUSTOM_NAMES) && !user_is_admin($data))
+	if ($check && !ALLOW_CUSTOM_NAMES && !user_is_admin($data))
 	{
 		return false;
 	}
@@ -517,7 +549,7 @@ function ensure_file_access(&$data, $name, $restricted = true)
 	$check_hash = !$restricted;
 
 	if ($restricted) {
-		$check_hash = defined('ALLOW_CUSTOM_NAMES') && ALLOW_CUSTOM_NAMES;
+		$check_hash = ALLOW_CUSTOM_NAMES;
 	}
 
 	if (!file_exists($name) && $check_hash)
@@ -552,11 +584,6 @@ function ensure_file_access(&$data, $name, $restricted = true)
 	}
 }
 
-if (!defined('MIME_TYPE_REGEX'))
-{
-	define('MIME_TYPE_REGEX', '/^(image|video)\//');
-}
-
 function upload_endpoint(&$data)
 {
 	enforce_auth($data);
@@ -576,7 +603,7 @@ function upload_endpoint(&$data)
 		error_die($data, 415, 'invalid_file_extension');
 	}
 
-	$ext = '.'.$ext;
+	$ext = ".$ext";
 
 	$mime = mime_content_type($file['tmp_name']);
 	if (!preg_match(MIME_TYPE_REGEX, $mime))
@@ -584,16 +611,11 @@ function upload_endpoint(&$data)
 		error_die($data, 415, 'invalid_file_mime_type');
 	}
 
-	if (!defined('NAME_LENGTH'))
-	{
-		define('NAME_LENGTH', 7);
-	}
-
 	$name = get_custom_filename($data);
 
 	if (!$name)
 	{
-		for ($i = 1; $i <= 10; $i++)
+		for ($i = 1; $i <= MAX_ITERATIONS; $i++)
 		{
 			$name = random_str().$ext;
 
@@ -603,8 +625,8 @@ function upload_endpoint(&$data)
 				break;
 			}
 
-			error_log('ShareXen Collision (iteration #'.
-				$i.'): File "'.$name.'" already exists.');
+			error_log("ShareXen Collision (iteration ".
+				"#$i): File \"$name\" already exists.");
 
 			if ($i == 10)
 			{
@@ -640,8 +662,7 @@ function rename_endpoint(&$data)
 {
 	enforce_auth($data);
 
-	if (!(defined('ALLOW_CUSTOM_NAMES') &&
-		ALLOW_CUSTOM_NAMES) && !user_is_admin($data))
+	if (!ALLOW_CUSTOM_NAMES && !user_is_admin($data))
 	{
 		error_die($data, 403, 'missing_permissions');
 	}
@@ -672,23 +693,21 @@ function info_endpoint(&$data)
 {
 	enforce_auth($data);
 
-	$admin = user_is_admin($data);
-	$data['is_admin'] = $admin;
+	$data['is_admin'] = user_is_admin($data);
 
 	$name = get_custom_filename($data, false);
 
 	if ($name)
 	{
-		$exists = file_exists($name);
-		$data['file_exists'] = $exists;
+		$data['file_exists'] = file_exists($name);
 
-		if ($exists)
+		if ($data['file_exists'])
 		{
 			$data['filename'] = $name;
 			$data['filesize'] = filesize($name);
 			$data['uploaded_at'] = filemtime($name);
 
-			generate_all_urls($data, $admin);
+			generate_all_urls($data, $data['is_admin']);
 		}
 	}
 	else
@@ -698,23 +717,51 @@ function info_endpoint(&$data)
 
 		$data['keyspace'] = KEYSPACE;
 		$data['name_length'] = NAME_LENGTH;
+		$data['max_iterations'] = MAX_ITERATIONS;
+
 		$data['allowed_extensions'] = EXTS;
 		$data['allowed_characters'] = ALLOWED_CHARACTERS;
-
-		$custom = defined('ALLOW_CUSTOM_NAMES');
-		$custom = $custom && ALLOW_CUSTOM_NAMES;
-		$data['custom_names'] = $custom;
+		$data['custom_names'] = ALLOW_CUSTOM_NAMES;
 
 		$pattern = '*.{'.implode(',', EXTS).'}';
 		$files = glob($pattern, GLOB_BRACE) ?: [];
 		$data['files_count'] = count($files);
 
-		if ($admin)
+		if (!$data['is_admin'])
 		{
-			$data['files'] = $files;
+			return;
 		}
+
+		$data['files'] = $files;
+		$data['users'] = array_map(strval, array_keys(USERS));
+		$data['admins'] = array_map(strval, ADMINS);
+
+		$data['can_use_webhook'] = @ini_get('allow_url_fopen') === '1';
+		$data['discord_webhook'] = DISCORD_WEBHOOK_URL ? true : false;
 	}
 }
+
+define('VERSION', '2.2.0');
+define('SOURCE', 'https://github.com/Xenthys/ShareXen');
+
+$data = [
+	'api_version' => VERSION,
+	'api_source' => SOURCE
+];
+
+$endpoints = [
+	'upload' => "\u{1F517}",
+	'delete' => "\u{1F5D1}",
+	'rename' => "\u{1F4DD}",
+	'info' => "\u{2139}"
+];
+
+$keys = array_keys($endpoints);
+$endpoint = get_parameter('endpoint');
+$data['endpoint'] = $endpoint ?: 'unknown';
+
+check_constants();
+perform_auth($data);
 
 if (!in_array($endpoint, $keys))
 {
@@ -724,5 +771,3 @@ if (!in_array($endpoint, $keys))
 ($endpoint.'_endpoint')($data);
 
 end_request($data);
-
-?>

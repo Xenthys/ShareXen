@@ -99,11 +99,16 @@ The `info` endpoint implements several JSON fields, which can be returned or not
 | `endpoints`          | No    | Unspecified | Array of Strings | List of supported API endpoints                                      |
 | `keyspace`           | No    | Unspecified | String           | Keyspace used by the API (configuration)                             |
 | `name_length`        | No    | Unspecified | Integer          | Size of random names (configuration)                                 |
+| `max_iterations`     | No    | Unspecified | Integer          | Max amount of attempts at generating a unique name (configuration)   |
 | `allowed_extensions` | No    | Unspecified | Array of Strings | List of allowed file extensions (configuration)                      |
 | `allowed_characters` | No    | Unspecified | String           | Additional allowed characters, for custom filenames (configuration)  |
 | `custom_names`       | No    | Unspecified | Boolean          | Whether custom filenames are globally allowed or not (configuration) |
 | `files_count`        | No    | Unspecified | Integer          | Amount of files (matching allowed extensions) in the current folder  |
 | `files`              | Yes   | Unspecified | Array of Strings | List of files (matching allowed extensions) in the current folder    |
+| `users`              | Yes   | Unspecified | Array of Strings | List of configured users, usernames only (configuration)             |
+| `admins`             | Yes   | Unspecified | Array of Strings | List of instance administrators (configuration)                      |
+| `can_use_webhook`    | Yes   | Unspecified | Boolean          | Whether PHP's `allow_url_fopen` configuration option is enabled      |
+| `discord_webhook`    | Yes   | Unspecified | Boolean          | Whether a Discord webhook has been set up or not (configuration)     |
 
 ## Limitations and security
 
