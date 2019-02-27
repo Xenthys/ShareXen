@@ -628,7 +628,7 @@ function upload_endpoint(&$data)
 			error_log("ShareXen Collision (iteration ".
 				"#$i): File \"$name\" already exists.");
 
-			if ($i == 10)
+			if ($i == MAX_ITERATIONS)
 			{
 				error_die($data, 500, 'cannot_generate_unique_filename');
 			}
