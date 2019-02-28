@@ -741,7 +741,7 @@ function info_endpoint(&$data)
 	}
 }
 
-define('VERSION', '2.2.0');
+define('VERSION', '2.2.1');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
