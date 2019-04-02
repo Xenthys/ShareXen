@@ -64,6 +64,10 @@ define('ALLOW_CUSTOM_NAMES', false);
 // Example: ['Mario', 'Toad'] (sorry Luigi)
 define('ADMINS', []);
 
+// Strip file extensions from generated URLs
+// This is only useful if you have a rewrite rule
+define('URL_STRIP_EXTENSION', false);
+
 // Log requests to Discord using a webhook
 // If you do not know what this is about, please ignore
 // It is not recommended to set this if your API is heavily used
@@ -178,6 +182,16 @@ function check_constants()
 	{
 		error_die($data, 500, 'invalid_server_configuration',
 			'Invalid ADMINS constant, must be an array.');
+	}
+
+	if (!defined('URL_STRIP_EXTENSION'))
+	{
+		define('URL_STRIP_EXTENSION', false);
+	}
+	if (gettype(URL_STRIP_EXTENSION) !== 'boolean')
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid URL_STRIP_EXTENSION constant, must be a boolean.');
 	}
 
 	if (!defined('DISCORD_WEBHOOK_URL'))
@@ -466,6 +480,11 @@ function generate_all_urls(&$data, $deletion = true)
 
 	$data['url'] = "$protocol$domain$sub$name";
 
+	if (URL_STRIP_EXTENSION)
+	{
+		$data['url'] = preg_replace('/\.[^.]+$/', '', $data['url']);
+	}
+
 	if (!$deletion)
 	{
 		return;
@@ -741,7 +760,7 @@ function info_endpoint(&$data)
 	}
 }
 
-define('VERSION', '2.2.1');
+define('VERSION', '2.3.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
