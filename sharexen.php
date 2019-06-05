@@ -301,6 +301,7 @@ function log_request(&$data)
 
 	$url = @$data['url'];
 	$user = @$data['username'];
+	$endpoint = @$data['endpoint'];
 
 	$msg = $user ? "Authenticated user $user" : 'Unauthenticated user';
 
@@ -760,7 +761,7 @@ function info_endpoint(&$data)
 	}
 }
 
-define('VERSION', '2.3.0');
+define('VERSION', '2.3.1');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 $data = [
