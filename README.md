@@ -31,7 +31,7 @@ Download the `ShareXen.sxcu` file from this repository and double-click it.
 If you can't open it for whatever reason, follow that procedure:
 
 1. Open ShareX, click on `Destinations` then `Custom uploader settings…`.
-3. Click the `Import` dropdown menu, and import the uploader file.
+2. Click the `Import` dropdown menu, and import the uploader file.
 
 You will need to edit the `Request URL` field to match your own domain name and script path, along with the `token` argument value that must contain a valid user token previously defined within the API itself.
 
