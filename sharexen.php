@@ -625,7 +625,7 @@ function upload_endpoint(&$data)
 
 	$ext = ".$ext";
 
-	$mime = mime_content_type($file['tmp_name']);
+	$mime = pathinfo($file['tmp_name'], PATHINFO_EXTENSION);
 	if (!preg_match(MIME_TYPE_REGEX, $mime))
 	{
 		error_die($data, 415, 'invalid_file_mime_type');
