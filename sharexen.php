@@ -36,6 +36,9 @@ define('USERS', [
 // Random generator: https://bit.ly/2DxaTak
 define('SALT', 'change-me');
 
+// Defines if Minme type checking is enabled
+define('MIME_TYPE_CHECKING', true);
+
 // List of allowed image extensions
 // Only put image extensions here unless
 // you edit the MIME_TYPE_REGEX option as well,
@@ -626,7 +629,7 @@ function upload_endpoint(&$data)
 	$ext = ".$ext";
 
 	$mime = mime_content_type($file['tmp_name']);
-	if (!preg_match(MIME_TYPE_REGEX, $mime))
+	if (!preg_match(MIME_TYPE_REGEX, $mime) && MIME_TYPE_CHECKING === true)
 	{
 		error_die($data, 415, 'invalid_file_mime_type');
 	}
