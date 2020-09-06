@@ -36,7 +36,7 @@ define('USERS', [
 // Random generator: https://bit.ly/2DxaTak
 define('SALT', 'change-me');
 
-// Defines if Minme type checking is enabled
+// Defines if Mime type checking is enabled
 define('MIME_TYPE_CHECKING', true);
 
 // List of allowed image extensions
