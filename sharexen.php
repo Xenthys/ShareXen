@@ -18,7 +18,7 @@
 // intended recipient, this can be very dangerous
 // Set tokens to very long and random strings of
 // various characters nobody can ever guess
-// Random generator: https://bfnt.io/pwgen
+// Random generator: https://bit.ly/2DxaTak
 define('USERS', [
 	'Mario' => 'change-me',
 	'Luigi' => 'change-me',
@@ -33,7 +33,7 @@ define('USERS', [
 // be able to delete files without security keys
 // Mandatory for having deletion URLs, set this to
 // a very long and random string of various characters
-// Random generator: https://bfnt.io/pwgen
+// Random generator: https://bit.ly/2DxaTak
 define('SALT', 'change-me');
 
 // List of allowed image extensions
