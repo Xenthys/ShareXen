@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2018 Dylan "Xenthys" Ysmal (discord.gg/bn)
+Copyright (c) 2018 Dylan "Xenthys" Ysmal (https://ysmal.fr/discord)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
