@@ -81,6 +81,7 @@ The following JSON fields can be returned:
 | `method`          | `delete` & `rename` | String  | Authentication method used to call the endpoint  |
 | `old_name`        | `rename`            | String  | Previous name of the file                        |
 | `error`           | any                 | String  | Static error code, only sent if anything fails   |
+| `error_msg`       | any                 | String  | Human-readable error, sent with all error codes  |
 | `debug`           | any                 | String  | Human-readable information, only for some errors |
 
 The `info` endpoint implements several JSON fields, which can be returned or not depending on your access level, whether you specify a filename, and whether it exists. Here is the full specification:

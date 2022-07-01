@@ -84,6 +84,10 @@ define('DISCORD_LOG_ERRORS', true);
 // set this to false to embed logged image links
 define('DISCORD_PREVENT_EMBED', true);
 
+// Default protocol to use in URLs
+// Accepted values: auto, http, https
+define('DEFAULT_PROTOCOL', 'auto');
+
 
 /* DANGEROUS CONSTANTS BELOW THIS LINE */
 
@@ -222,6 +226,16 @@ function check_constants()
 	{
 		error_die($data, 500, 'invalid_server_configuration',
 			'Invalid DISCORD_PREVENT_EMBED constant, must be a boolean.');
+	}
+
+	if (!defined('DEFAULT_PROTOCOL'))
+	{
+		define('DEFAULT_PROTOCOL', 'auto');
+	}
+	if (!in_array(DEFAULT_PROTOCOL, ['auto', 'http', 'https']))
+	{
+		error_die($data, 500, 'invalid_server_configuration',
+			'Invalid DEFAULT_PROTOCOL constant, must be one of: auto, http, https.');
 	}
 
 	if (!defined('KEYSPACE'))
@@ -384,6 +398,7 @@ function end_request(&$data, $code = 200, $status = 'success')
 function error_die(&$data, $code, $reason = 'unknown_error', $debug = '')
 {
 	$data['error'] = $reason;
+	$data['error_msg'] = ERRORS[$reason];
 
 	if ($debug)
 	{
@@ -462,10 +477,17 @@ function generate_all_urls(&$data, $deletion = true)
 {
 	$protocol = get_parameter('protocol');
 
-	if (!$protocol)
+	if (!in_array($protocol, ['http', 'https']))
 	{
-		$https = $_SERVER['HTTPS'];
-		$protocol = 'http'.($https?'s':'');
+		if (DEFAULT_PROTOCOL === 'auto')
+		{
+			$https = $_SERVER['HTTPS'];
+			$protocol = 'http'.($https?'s':'');
+		}
+		else
+		{
+			$protocol = DEFAULT_PROTOCOL;
+		}
 	}
 
 	$protocol = $protocol.'://';
@@ -761,8 +783,30 @@ function info_endpoint(&$data)
 	}
 }
 
-define('VERSION', '2.3.1');
+define('VERSION', '2.4.0');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
+
+define('ERRORS', [
+	'unknown_error' => 'An unknown error happened, you shouldn\'t ever see this error message.',
+	'invalid_server_configuration' => 'Server configuration is invalid, please tell an administrator.',
+	'invalid_credentials' => 'Your token is invalid, please check it out or ask an administrator.',
+	'unauthenticated_request' => 'You must be authentified in order to use this API endpoint.',
+	'file_already_exists' => 'The specified file name already exists on the server.',
+	'forbidden_filename' => 'The specified file name is forbidden: invalid characters or extension.',
+	'missing_filename' => 'A file name must be specified in order to use this API endpoint.',
+	'file_not_found' => 'The given file name was not found on the server.',
+	'invalid_key' => 'The given file deletion key is invalid.',
+	'missing_permissions' => 'You do not have the permission to perform this operation.',
+	'missing_file' => 'You must send a file in order to use the upload API endpoint.',
+	'invalid_file_extension' => 'The specified file extension is invalid.',
+	'invalid_file_mime_type' => 'The specified file MIME type is invalid.',
+	'cannot_generate_unique_filename' => 'The API was unable to generate a unique file name.',
+	'upload_failed' => 'The API was unable to save your file, please tell and administrator.',
+	'delete_failed' => 'The API was unable to delete your file, please tell and administrator.',
+	'missing_new_name' => 'You must specify the new file name (new_name) to rename a file.',
+	'rename_failed' => 'The API was unable to rename your file, please tell and administrator.',
+	'unknown_endpoint' => 'Unknown API endpoint, must be one of: upload, delete, rename, info.'
+]);
 
 $data = [
 	'api_version' => VERSION,

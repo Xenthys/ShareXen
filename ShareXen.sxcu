@@ -1,11 +1,14 @@
 ﻿{
   "DestinationType": "ImageUploader",
+  "RequestMethod": "POST",
   "RequestURL": "https://your.domain/sharexen.php",
-  "FileFormName": "image",
+  "Body": "MultipartFormData",
   "Arguments": {
     "endpoint": "upload",
     "token": "change-me"
   },
+  "FileFormName": "image",
   "URL": "$json:url$",
-  "DeletionURL": "$json:deletion_url$"
+  "DeletionURL": "$json:deletion_url$",
+  "ErrorMessage": "$json:error_msg$"
 }
