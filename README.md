@@ -122,4 +122,4 @@ Security keys are only as secure as your `SALT` is. Make sure to have a **very r
 
 ## Contributing
 
-If you want to help improve this API or its documentation, feel free to come on [Blackfields Network's Discord server](https://discordapp.com/invite/bn) to suggest modifications. You can also open a pull-request, but make sure to **sign your commits with GPG** and **respect the script's programming style**, so we can keep it as readable as possible.
+If you want to help improve this API or its documentation, please join the [ShareX Discord server](https://discord.com/invite/sharex) and mention `Xenthys#0001` in the `#programming` channel to suggest modifications. You can also open a pull-request, but make sure to **sign your commits with GPG** and **respect the script's programming style** so we can keep it as readable as possible, thank you.
