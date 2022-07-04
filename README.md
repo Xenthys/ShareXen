@@ -1,10 +1,10 @@
 # ShareXen
 
-ShareXen is an API, which is really just another ShareX custom uploader PHP script, but done right. It requires at least PHP 7.0 to run, along with the cURL extension if you plan to use Discord webhooks to log requests. No database is required.
+ShareXen is an API, which is really just another ShareX custom uploader PHP script, but done right. It requires at least PHP 7.0 to run, and no database is required.
 
 This API returns strict JSON results. You can easily parse its answers within your own scripts.
 
-If you have any problem setting this up, you can ask for help on [ShareX's Discord server](https://discordapp.com/invite/sharex) directly.
+If you have any problem setting this up, you can ask `Xenthys#0001` on the [ShareX Discord server](https://discord.com/invite/sharex) directly.
 
 ## Features
 
