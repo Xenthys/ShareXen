@@ -775,15 +775,15 @@ function info_endpoint(&$data)
 		}
 
 		$data['files'] = $files;
-		$data['users'] = array_map(strval, array_keys(USERS));
-		$data['admins'] = array_map(strval, ADMINS);
+		$data['users'] = array_map('strval', array_keys(USERS));
+		$data['admins'] = array_map('strval', ADMINS);
 
 		$data['can_use_webhook'] = @ini_get('allow_url_fopen') === '1';
 		$data['discord_webhook'] = DISCORD_WEBHOOK_URL ? true : false;
 	}
 }
 
-define('VERSION', '2.4.0');
+define('VERSION', '2.4.1');
 define('SOURCE', 'https://github.com/Xenthys/ShareXen');
 
 define('ERRORS', [
