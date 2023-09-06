@@ -7,6 +7,8 @@ if (!$file) {
   die('No file specified.');
 }
 
+$pos = strrpos($file, '/');
+if ($pos) $file = substr($url, $pos);
 $regex = "/^[^\/.]+\.(png|jpe?g|gif|webp)$/";
 
 if (!preg_match($regex, $file)) {
@@ -20,18 +22,17 @@ if (!file_exists($file)) {
 }
 
 function human_filesize($bytes, $decimals = 2) {
-  $sz = 'BKMGTP';
+  $sz = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
   $factor = floor((strlen($bytes) - 1) / 3);
-  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor] . 'B';
+  return sprintf("%.{$decimals}f ", $bytes / pow(1024, $factor)) . @$sz[$factor];
 }
 
 $size = human_filesize(filesize($file));
 
 $url = 'http'.(isset($_SERVER['HTTPS']) ? 's' : '')."://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 
-$pos = strpos($url, $_SERVER['PHP_SELF']);
-if ($pos) {
-  $url = substr($url, 0, $pos) . "/$file";
+if (strpos($url, $_SERVER['PHP_SELF'])) {
+  $url = substr($url, 0, strrpos($url, '/')) . "/$file";
 }
 
 $url = explode('?', $url)[0].'?raw';

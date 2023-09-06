@@ -3,5 +3,5 @@
   RewriteCond %{QUERY_STRING} !raw
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteCond %{HTTP_USER_AGENT} \+https:\/\/discordapp\.com\)$
-  RewriteRule ^([^\/.]+\.(?:png|jpe?g|gif|webp))$ /embed.php?file=$1
+  RewriteRule ^([^\/.]+\.(?:png|jpe?g|gif|webp))$ embed.php?file=$1
 </IfModule>
