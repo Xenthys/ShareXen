@@ -801,7 +801,7 @@ define('ERRORS', [
 	'invalid_file_extension' => 'The specified file extension is invalid.',
 	'invalid_file_mime_type' => 'The specified file MIME type is invalid.',
 	'cannot_generate_unique_filename' => 'The API was unable to generate a unique file name.',
-	'upload_failed' => 'The API was unable to save your file, please tell and administrator.',
+	'upload_failed' => 'The API was unable to save your file, please tell an administrator.',
 	'delete_failed' => 'The API was unable to delete your file, please tell and administrator.',
 	'missing_new_name' => 'You must specify the new file name (new_name) to rename a file.',
 	'rename_failed' => 'The API was unable to rename your file, please tell and administrator.',
